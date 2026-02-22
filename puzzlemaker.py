@@ -1,3 +1,4 @@
+import os
 import pytesseract
 from PIL import Image
 
@@ -10,7 +11,18 @@ class PuzzleMaker:
     def get_new_puzzle(self):
         self.get_column_images()
         self.get_row_images()
-        print(self.read_numbers_from_image("column/col_number_2.png"))
+
+        print("COLUMN")
+        for img in os.listdir("column"):
+            if img == ".gitignore":
+                continue
+            print(img, self.read_numbers_from_image(f"column/{img}"))
+
+        print("ROW")
+        for img in os.listdir("row"):
+            if img == ".gitignore":
+                continue
+            print(img, self.read_numbers_from_image(f"row/{img}"))
 
     def get_column_images(self):
         """Saves column numbers into the 'column' folder"""
@@ -51,12 +63,16 @@ class PuzzleMaker:
             left += TOP_BOT_DIFF
             right += TOP_BOT_DIFF
 
-    def read_numbers_from_image(img_path):
+    def read_numbers_from_image(self, img_path):
         img = Image.open(img_path)
-        img = img.resize((img.width * 4, img.height * 4), Image.NEAREST)
+        img = img.resize((img.width * 5, img.height * 5), Image.NEAREST)
         img = img.convert("L")
+        img.save("BIG_IMG.png")
 
-        text = pytesseract.image_to_string(img, config="--psm 6 digits")
+        pytesseract.pytesseract.tesseract_cmd = (
+            "C:/Program Files/Tesseract-OCR/tesseract.exe"
+        )
+        text = pytesseract.image_to_string(img)
         numbers = [int(n) for n in text.split() if n.isdigit()]
         return numbers
 
