@@ -1,3 +1,4 @@
+import pytesseract
 from PIL import Image
 
 
@@ -6,7 +7,10 @@ class PuzzleMaker:
         self.image = Image.open(img_path)
         self.img_width, self.img_height = self.image.size
 
-    def get_new_puzzle(): ...
+    def get_new_puzzle(self):
+        self.get_column_images()
+        self.get_row_images()
+        print(self.read_numbers_from_image("column/col_number_2.png"))
 
     def get_column_images(self):
         """Saves column numbers into the 'column' folder"""
@@ -18,7 +22,7 @@ class PuzzleMaker:
 
         for i in range(15):
             cropped_example = self.image.crop((left, top, right, bottom))
-            cropped_example.save(f"column/numbers_{i + 1}.png")
+            cropped_example.save(f"column/col_number_{i + 1}.png")
 
             if i % 2 == 0:
                 TOP_BOT_DIFF = 17
@@ -37,7 +41,7 @@ class PuzzleMaker:
 
         for i in range(15):
             cropped_example = self.image.crop((left, top, right, bottom))
-            cropped_example.save(f"row/numbers_{i + 1}.png")
+            cropped_example.save(f"row/col_number_{i + 1}.png")
 
             if i % 2 == 0:
                 TOP_BOT_DIFF = 17
@@ -47,7 +51,15 @@ class PuzzleMaker:
             left += TOP_BOT_DIFF
             right += TOP_BOT_DIFF
 
+    def read_numbers_from_image(img_path):
+        img = Image.open(img_path)
+        img = img.resize((img.width * 4, img.height * 4), Image.NEAREST)
+        img = img.convert("L")
+
+        text = pytesseract.image_to_string(img, config="--psm 6 digits")
+        numbers = [int(n) for n in text.split() if n.isdigit()]
+        return numbers
+
 
 a = PuzzleMaker()
-a.get_column_images()
-a.get_row_images()
+a.get_new_puzzle()
